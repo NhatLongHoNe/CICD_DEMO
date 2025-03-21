@@ -1,0 +1,128 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Doctor {
+  Id uniqueidentifier [primary key]
+  Name varchar
+  DepartmentId uniqueidentifier 
+  IsHeadOfDepartment uniqueidentifier
+  ExpertiseSkillId uniqueidentifier
+  YearsOfExperience int
+  Address varchar
+  Email varchar
+  PhoneNumber varchar
+  CreatedBy varchar
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+}
+
+Table ExpertiseSkill{
+  Id uniqueidentifier
+  Name varchar // Nurse - 
+  Description varchar
+  CreatedBy varchar
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+}
+
+Table Department {
+  Id uniqueidentifier [primary key]
+  Name varchar
+  CreatedBy varchar
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+}
+
+Table Patient {
+  Id uniqueidentifier [primary key]
+  FirstName varchar
+  LastName varchar
+  Address varchar
+  Email varchar
+  PhoneNumber varchar
+  CreatedBy varchar
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+
+}
+
+Table PatientHistory{
+  Id uniqueidentifier [primary key]
+  MedicalTitle varchar
+  MedicalExaminationDay datetime
+  Result varchar
+  Summary varchar 
+  Note varchar 
+  PatientId uniqueidentifier
+  DoctorId uniqueidentifier
+  CreatedBy varchar
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+}
+
+Table MedicalExaminationCalendar{
+  Id uniqueidentifier [primary key]
+  Title varchar
+  ScheduleStart datetime
+  ScheduleEnd datetime
+  DoctorId uniqueidentifier
+  MedicalExaminationTypeId uniqueidentifier
+  RoomId uniqueidentifier
+  CreatedBy varchar // Nurse Created
+  CreatedDate datetime
+  UpdatedBy varchar
+  UpdatedDate datetime
+}
+
+Table MedicalExaminationType{
+  Id uniqueidentifier [primary key]
+  MedicalExamination varchar
+  MaximumNumberOfAttendees int
+  ExpirationForInvitations int
+}
+
+Table Invitation{
+  Id uniqueidentifier [primary key]
+  PatientId uniqueidentifier
+  MedicalExaminationCalendarId uniqueidentifier
+  Status int // Reject - Approved
+}
+
+Table Attendee{
+  Id uniqueidentifier [primary key]
+  PatientId uniqueidentifier
+  MedicalExaminationCalendarId uniqueidentifier
+  Status int // Schedule - InProgress - Finished
+}
+
+Table Room{
+  Id uniqueidentifier [primary key]
+  Name varchar
+  location varchar
+  MedicalEquipment varchar
+}
+
+
+
+ref: Doctor.DepartmentId > Department.Id
+ref: Doctor.ExpertiseSkillId > ExpertiseSkill.Id
+
+ref: PatientHistory.DoctorId > Doctor.Id
+ref: PatientHistory.PatientId > Patient.Id
+
+ref: MedicalExaminationCalendar.DoctorId > Doctor.Id
+ref: MedicalExaminationCalendar.MedicalExaminationTypeId > MedicalExaminationType.Id
+ref: MedicalExaminationCalendar.RoomId > Room.Id
+
+
+ref: Invitation.PatientId > Patient.Id
+ref: Invitation.MedicalExaminationCalendarId > MedicalExaminationCalendar.Id
+
+ref: Attendee.MedicalExaminationCalendarId > MedicalExaminationCalendar.Id
+ref: Attendee.PatientId > Patient.Id
+

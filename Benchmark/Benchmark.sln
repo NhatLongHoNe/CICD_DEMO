@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optimiza_RepositoryBase.API", "src\Optimiza_RepositoryBase.API\Optimiza_RepositoryBase.API.csproj", "{012CD126-E54B-4F01-B79B-E856E2592BBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "src\Benchmark\Benchmark.csproj", "{6C9A232A-B6D1-4AC3-B6F7-35BF6A1336EE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{012CD126-E54B-4F01-B79B-E856E2592BBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{012CD126-E54B-4F01-B79B-E856E2592BBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{012CD126-E54B-4F01-B79B-E856E2592BBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{012CD126-E54B-4F01-B79B-E856E2592BBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C9A232A-B6D1-4AC3-B6F7-35BF6A1336EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C9A232A-B6D1-4AC3-B6F7-35BF6A1336EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C9A232A-B6D1-4AC3-B6F7-35BF6A1336EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C9A232A-B6D1-4AC3-B6F7-35BF6A1336EE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F1EAB36-88CC-42A5-816B-438AB44E7E8A}
+	EndGlobalSection
+EndGlobal
