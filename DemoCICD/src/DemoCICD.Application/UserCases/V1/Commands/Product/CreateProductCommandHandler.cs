@@ -48,9 +48,9 @@ public sealed class CreateProductCommandHandler : ICommandHandler<Command.Create
         //await _publisher.Publish(new DomainEvent.ProductCreated(productCreated.Id), cancellationToken);
         //await _publisher.Publish(new DomainEvent.ProductDeleted(product.Id), cancellationToken);
 
-        await Task.WhenAll(
-            _publisher.Publish(new DomainEvent.ProductCreated(productCreated.Id), cancellationToken),
-            _publisher.Publish(new DomainEvent.ProductDeleted(product.Id), cancellationToken));
+        //await Task.WhenAll(
+        //    _publisher.Publish(new DomainEvent.ProductCreated(productCreated.Id), cancellationToken),
+        //    _publisher.Publish(new DomainEvent.ProductDeleted(product.Id), cancellationToken));
 
         return Result.Success();
     }
