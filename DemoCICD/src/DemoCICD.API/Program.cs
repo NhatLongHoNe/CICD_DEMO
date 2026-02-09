@@ -6,6 +6,8 @@ using DemoCICD.Persistence.DependencyInjection.Extensions;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using DemoCICD.API.DependencyInjection.Extensions;
 using DemoCICD.Infrastructure.Dapper.DependencyInjection.Extensions;
+using DemoCICD.Infrastructure.DependencyInjection.Extensions;
+using DemoCICD.Presentation.APIs.Auth;
 using DemoCICD.Presentation.APIs.Products;
 using Carter;
 
@@ -43,6 +45,9 @@ builder.Services.AddCarter();
 // Configure Dapper
 builder.Services.AddInfrastructureDapper();
 
+// Configure JWT Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
 builder.Services
         .AddSwaggerGenNewtonsoftSupport()
         .AddFluentValidationRulesToSwagger()
@@ -60,9 +65,10 @@ builder.Services
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
+app.UseAuthentication();
 // Add API Endpoint
 app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();
+app.NewVersionedApi("auth").MapAuthApi();
 
 // Add API Endpoint with carter module
 app.MapCarter();

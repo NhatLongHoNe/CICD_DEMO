@@ -1,6 +1,7 @@
-﻿using Asp.Versioning.ApiExplorer;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace DemoCICD.API.DependencyInjection.Options;
@@ -22,6 +23,22 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                 Title = AppDomain.CurrentDomain.FriendlyName,
                 Version = description.ApiVersion.ToString()
             });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization. Example: \"Bearer {token}\""
+        });
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+                Array.Empty<string>()
+            }
+        });
 
         options.MapType<DateOnly>(() => new()
         {

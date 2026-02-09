@@ -1,4 +1,4 @@
-﻿using DemoCICD.Domain.Abstractions.Repositories;
+using DemoCICD.Domain.Abstractions.Repositories;
 using DemoCICD.Domain.Abstractions;
 using DemoCICD.Domain.Entities.Identity;
 using DemoCICD.Persistence.DependencyInjection.Options;
@@ -82,7 +82,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient(typeof(IUnitOfWork), typeof(EFUnitOfWork));
         services.AddTransient(typeof(IRepositoryBase<,>), typeof(RepositoryBase<,>));
-
+        services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
     }
 
     public static OptionsBuilder<SqlServerRetryOptions> ConfigureSqlServerRetryOptions(this IServiceCollection services, IConfigurationSection section)
