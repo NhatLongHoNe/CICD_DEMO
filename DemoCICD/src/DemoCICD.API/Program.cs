@@ -71,7 +71,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 // Add API Endpoint
 app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();
-app.NewVersionedApi("auth").MapAuthApi();
+//app.NewVersionedApi("auth").MapAuthApi();
 
 // Add API Endpoint with carter module
 app.MapCarter();
