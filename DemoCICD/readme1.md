@@ -4,3 +4,7 @@
 
 superadmin
 Password123!
+
+npm install -g @angular/cli@17.0.8
+
+gentelela
