@@ -8,6 +8,7 @@ using DemoCICD.API.DependencyInjection.Extensions;
 using DemoCICD.Infrastructure.Dapper.DependencyInjection.Extensions;
 using DemoCICD.Infrastructure.DependencyInjection.Extensions;
 using DemoCICD.Presentation.APIs.Auth;
+using DemoCICD.Persistence.Seed;
 using DemoCICD.Presentation.APIs.Products;
 using Carter;
 
@@ -48,6 +49,8 @@ builder.Services.AddInfrastructureDapper();
 // Configure JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+builder.Services.AddHostedService<IdentityDataSeeder>();
+
 builder.Services
         .AddSwaggerGenNewtonsoftSupport()
         .AddFluentValidationRulesToSwagger()
@@ -84,18 +87,18 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())
 
 try
 {
-await app.RunAsync();
-Log.Information("Stopped cleanly");
+    await app.RunAsync();
+    Log.Information("Stopped cleanly");
 }
 catch (Exception ex)
 {
-Log.Fatal(ex, "An unhandled exception occured during bootstrapping");
-await app.StopAsync();
+    Log.Fatal(ex, "An unhandled exception occured during bootstrapping");
+    await app.StopAsync();
 }
 finally
 {
-Log.CloseAndFlush();
-await app.DisposeAsync();
+    Log.CloseAndFlush();
+    await app.DisposeAsync();
 }
 
 public partial class Program { }

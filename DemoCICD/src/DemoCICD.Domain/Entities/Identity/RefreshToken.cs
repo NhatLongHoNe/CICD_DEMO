@@ -14,8 +14,7 @@ public class RefreshToken
     public bool IsRevoked => RevokedAt.HasValue;
     public bool IsActive => !IsRevoked && !IsExpired;
 
-    private RefreshToken() => Token = string.Empty;
-
+    protected RefreshToken() => Token = string.Empty;
     public static RefreshToken Create(Guid userId, string token, DateTime expiresAt)
     {
         return new RefreshToken
