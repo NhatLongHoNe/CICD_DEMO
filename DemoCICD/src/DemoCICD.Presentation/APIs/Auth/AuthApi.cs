@@ -21,6 +21,7 @@ public class AuthApi : ApiEndpoint, ICarterModule
 
         group.MapPost("login", Login).WithName("Login");
         group.MapPost("refresh", RefreshToken).WithName("RefreshToken");
+        group.MapPost("refresh", Logout).WithName("Logout");
 
     }
 
@@ -42,5 +43,15 @@ public class AuthApi : ApiEndpoint, ICarterModule
             return HandlerFailure(result);
 
         return Results.Ok(result.Value);
+    }
+
+    public static async Task<IResult> Logout(ISender sender, [FromBody] Command.LogoutCommand command)
+    {
+        var result = await sender.Send(command);
+
+        if (result.IsFailure)
+            return HandlerFailure(result);
+
+        return Results.Ok(result);
     }
 }

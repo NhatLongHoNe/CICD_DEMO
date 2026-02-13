@@ -43,6 +43,19 @@ builder.Services.AddConfigureAutoMapper();
 
 builder.Services.AddCarter();
 
+// CORS: cho phép Angular (và các origin khác) gọi API
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:4200" };
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Configure Dapper
 builder.Services.AddInfrastructureDapper();
 
@@ -68,6 +81,7 @@ builder.Services
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseCors();
 app.UseAuthentication();
 // Add API Endpoint
 app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();

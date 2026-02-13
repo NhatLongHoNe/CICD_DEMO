@@ -5,14 +5,22 @@
         <c-card-group>
           <c-card class="p-4">
             <c-card-body>
-              <form cForm>
+              <form cForm [formGroup]="loginForm" (ngSubmit)="onSubmit()" [attr.aria-busy]="loading">
                 <h1>Login</h1>
                 <p class="text-body-secondary">Sign In to your account</p>
+                @if (errorMessage) {
+                  <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+                }
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>
                   </span>
-                  <input autoComplete="username" cFormControl placeholder="Username" />
+                  <input
+                    autoComplete="username"
+                    formControlName="username"
+                    cFormControl
+                    placeholder="Username"
+                  />
                 </c-input-group>
                 <c-input-group class="mb-4">
                   <span cInputGroupText>
@@ -20,6 +28,7 @@
                   </span>
                   <input
                     autoComplete="current-password"
+                    formControlName="password"
                     cFormControl
                     placeholder="Password"
                     type="password"
@@ -27,8 +36,18 @@
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">
-                    <button cButton class="px-4" color="primary">
-                      Login
+                    <button
+                      cButton
+                      class="px-4"
+                      color="primary"
+                      type="submit"
+                      [disabled]="loading"
+                      [attr.aria-busy]="loading"
+                    >
+                      @if (loading) {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      }
+                      {{ loading ? 'Đang đăng nhập...' : 'Login' }}
                     </button>
                   </c-col>
                   <c-col class="text-end" xs="6">
