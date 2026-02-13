@@ -20,8 +20,8 @@ public class AuthApi : ApiEndpoint, ICarterModule
         var group = app.NewVersionedApi("auth").MapGroup(BaseUrl).HasApiVersion(1);
 
         group.MapPost("login", Login).WithName("Login");
-        group.MapPost("refresh", RefreshToken).WithName("RefreshToken");
-        group.MapPost("refresh", Logout).WithName("Logout");
+        group.MapPost("refresh-token", RefreshToken).WithName("RefreshToken");
+        group.MapPost("logout", Logout).WithName("Logout");
 
     }
 
