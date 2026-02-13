@@ -1,0 +1,32 @@
+meta {
+  name: testau
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5207/api/v1/auth/login
+  body: json
+  auth: inherit
+}
+
+headers {
+  sec-ch-ua-platform: "Windows"
+  Referer: http://localhost:64468/
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
+  Accept: application/json, text/plain, */*
+  sec-ch-ua: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"
+  Content-Type: application/json
+  sec-ch-ua-mobile: ?0
+}
+
+body:json {
+  {
+    "username": "superadmin",
+    "password": "Password123\u0021"
+  }
+}
+
+settings {
+  encodeUrl: false
+}

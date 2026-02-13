@@ -6,6 +6,9 @@ using DemoCICD.Persistence.DependencyInjection.Extensions;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using DemoCICD.API.DependencyInjection.Extensions;
 using DemoCICD.Infrastructure.Dapper.DependencyInjection.Extensions;
+using DemoCICD.Infrastructure.DependencyInjection.Extensions;
+using DemoCICD.Presentation.APIs.Auth;
+using DemoCICD.Persistence.Seed;
 using DemoCICD.Presentation.APIs.Products;
 using Carter;
 
@@ -40,8 +43,26 @@ builder.Services.AddConfigureAutoMapper();
 
 builder.Services.AddCarter();
 
+// CORS: cho phép Angular (và các origin khác) gọi API
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:4200" };
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Configure Dapper
 builder.Services.AddInfrastructureDapper();
+
+// Configure JWT Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+builder.Services.AddHostedService<IdentityDataSeeder>();
 
 builder.Services
         .AddSwaggerGenNewtonsoftSupport()
@@ -60,9 +81,11 @@ builder.Services
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
+app.UseCors();
+app.UseAuthentication();
 // Add API Endpoint
 app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();
+//app.NewVersionedApi("auth").MapAuthApi();
 
 // Add API Endpoint with carter module
 app.MapCarter();
@@ -78,18 +101,18 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())
 
 try
 {
-await app.RunAsync();
-Log.Information("Stopped cleanly");
+    await app.RunAsync();
+    Log.Information("Stopped cleanly");
 }
 catch (Exception ex)
 {
-Log.Fatal(ex, "An unhandled exception occured during bootstrapping");
-await app.StopAsync();
+    Log.Fatal(ex, "An unhandled exception occured during bootstrapping");
+    await app.StopAsync();
 }
 finally
 {
-Log.CloseAndFlush();
-await app.DisposeAsync();
+    Log.CloseAndFlush();
+    await app.DisposeAsync();
 }
 
 public partial class Program { }

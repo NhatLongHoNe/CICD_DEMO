@@ -1,4 +1,4 @@
-﻿namespace DemoCICD.Persistence.Constants;
+namespace DemoCICD.Persistence.Constants;
 
 internal static class TableNames
 {
@@ -19,4 +19,5 @@ internal static class TableNames
 
     // *********** Singular Nouns ***********
     internal const string Product = nameof(Product);
+    internal const string RefreshToken = nameof(RefreshToken);
 }
