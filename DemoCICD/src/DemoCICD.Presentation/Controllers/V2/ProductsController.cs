@@ -1,14 +1,17 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using DemoCICD.Contract.Abstractions.Shared;
 using DemoCICD.Contract.Services.V2.Product;
+using DemoCICD.Infrastructure.Authorization;
 using DemoCICD.Presentation.Abstractions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DemoCICD.Presentation.Controllers.V2;
 
 [ApiVersion(2)]
+[Authorize]
 public class ProductsController : ApiController
 {
     public ProductsController(ISender sender) : base(sender)
@@ -16,6 +19,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPost(Name = "CreateProducts")]
+    [RequirePermission(ProductPermissions.Create)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Products([FromBody] Command.CreateProductCommand CreateProduct)
@@ -47,6 +51,7 @@ public class ProductsController : ApiController
     //}
 
     [HttpGet(Name = "GetProducts")]
+    [RequirePermission(ProductPermissions.View)]
     [ProducesResponseType(typeof(Result<IEnumerable<Response.ProductResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Products()
@@ -56,6 +61,7 @@ public class ProductsController : ApiController
     }
 
     [HttpGet("{productId}")]
+    [RequirePermission(ProductPermissions.View)]
     [ProducesResponseType(typeof(Result<Response.ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Products(Guid productId)
@@ -65,6 +71,7 @@ public class ProductsController : ApiController
     }
 
     [HttpDelete("{productId}")]
+    [RequirePermission(ProductPermissions.Delete)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteProducts(Guid productId)
@@ -74,6 +81,7 @@ public class ProductsController : ApiController
     }
 
     [HttpPut("{productId}")]
+    [RequirePermission(ProductPermissions.Update)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Products(Guid productId, [FromBody] Command.UpdateProductCommand updateProduct)
