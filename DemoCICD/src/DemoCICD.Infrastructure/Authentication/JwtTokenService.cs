@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DemoCICD.Application.Abstractions;
+using DemoCICD.Infrastructure.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,7 +14,11 @@ internal sealed class JwtTokenService : IAccessTokenService
 
     public JwtTokenService(IOptions<JwtOptions> options) => _options = options.Value;
 
-    public string GenerateAccessToken(Guid userId, string userName, IReadOnlyList<string> roles)
+    public string GenerateAccessToken(
+        Guid userId,
+        string userName,
+        IReadOnlyList<string> roles,
+        IReadOnlyList<string> permissions)
     {
         var claims = new List<Claim>
         {
@@ -23,6 +28,7 @@ internal sealed class JwtTokenService : IAccessTokenService
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(permissions.Select(p => new Claim(PermissionClaimTypes.Permission, p)));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

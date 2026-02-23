@@ -1,7 +1,8 @@
-﻿using Asp.Versioning.Builder;
+using Asp.Versioning.Builder;
 using DemoCICD.Contract.Abstractions.Shared;
 using DemoCICD.Contract.Extensions;
 using DemoCICD.Contract.Services.V1.Product;
+using DemoCICD.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,23 +16,23 @@ public static class ProductApi
 
     public static IVersionedEndpointRouteBuilder MapProductApiV1(this IVersionedEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup(BaseUrl).HasApiVersion(1);
+        var group = builder.MapGroup(BaseUrl).HasApiVersion(1).RequireAuthorization();
 
-        group.MapPost(string.Empty, CreateProducts);
-        group.MapGet(string.Empty, GetProducts);
-        group.MapGet("{productId}", GetProductsById);
-        group.MapDelete("{productId}", DeleteProducts);
-        group.MapPut("{productId}", UpdateProducts);
+        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(ProductPermissions.Create);
+        group.MapGet(string.Empty, GetProducts).RequireAuthorization(ProductPermissions.View);
+        group.MapGet("{productId}", GetProductsById).RequireAuthorization(ProductPermissions.View);
+        group.MapDelete("{productId}", DeleteProducts).RequireAuthorization(ProductPermissions.Delete);
+        group.MapPut("{productId}", UpdateProducts).RequireAuthorization(ProductPermissions.Update);
 
         return builder;
     }
 
     public static IVersionedEndpointRouteBuilder MapProductApiV2(this IVersionedEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup(BaseUrl).HasApiVersion(2);
+        var group = builder.MapGroup(BaseUrl).HasApiVersion(2).RequireAuthorization();
 
-        group.MapPost(string.Empty, CreateProducts);
-        group.MapGet(string.Empty, GetProducts);
+        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(ProductPermissions.Create);
+        group.MapGet(string.Empty, GetProducts).RequireAuthorization(ProductPermissions.View);
 
         return builder;
     }

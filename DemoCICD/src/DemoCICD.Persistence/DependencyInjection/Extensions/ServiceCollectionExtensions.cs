@@ -83,6 +83,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient(typeof(IUnitOfWork), typeof(EFUnitOfWork));
         services.AddTransient(typeof(IRepositoryBase<,>), typeof(RepositoryBase<,>));
         services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddTransient<IPermissionRepository, PermissionRepository>();
     }
 
     public static OptionsBuilder<SqlServerRetryOptions> ConfigureSqlServerRetryOptions(this IServiceCollection services, IConfigurationSection section)
