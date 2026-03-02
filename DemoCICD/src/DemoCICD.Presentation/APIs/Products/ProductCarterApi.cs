@@ -1,5 +1,6 @@
-﻿using Carter;
+using Carter;
 using DemoCICD.Contract.Extensions;
+using DemoCICD.Infrastructure.Authorization;
 using DemoCICD.Presentation.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -19,22 +20,22 @@ public class ProductCarterApi : ApiEndpoint, ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group1 = app.NewVersionedApi("products-cater-name-show-on-swagger")
-            .MapGroup(BaseUrl).HasApiVersion(1);
+            .MapGroup(BaseUrl).HasApiVersion(1).RequireAuthorization();
 
-        group1.MapPost(string.Empty, CreateProductsV1);
-        group1.MapGet(string.Empty, GetProductsV1);
-        group1.MapGet("{productId}", GetProductsByIdV1);
-        group1.MapDelete("{productId}", DeleteProductsV1);
-        group1.MapPut("{productId}", UpdateProductsV1);
+        group1.MapPost(string.Empty, CreateProductsV1).RequireAuthorization(ProductPermissions.Create);
+        group1.MapGet(string.Empty, GetProductsV1).RequireAuthorization(ProductPermissions.View);
+        group1.MapGet("{productId}", GetProductsByIdV1).RequireAuthorization(ProductPermissions.View);
+        group1.MapDelete("{productId}", DeleteProductsV1).RequireAuthorization(ProductPermissions.Delete);
+        group1.MapPut("{productId}", UpdateProductsV1).RequireAuthorization(ProductPermissions.Update);
 
         var group2 = app.NewVersionedApi("products-cater-name-show-on-swagger")
-            .MapGroup(BaseUrl).HasApiVersion(2);
+            .MapGroup(BaseUrl).HasApiVersion(2).RequireAuthorization();
 
-        group2.MapPost(string.Empty, CreateProductsV2);
-        group2.MapGet(string.Empty, GetProductsV2);
-        group2.MapGet("{productId}", GetProductsByIdV2);
-        group2.MapDelete("{productId}", DeleteProductsV2);
-        group2.MapPut("{productId}", UpdateProductsV2);
+        group2.MapPost(string.Empty, CreateProductsV2).RequireAuthorization(ProductPermissions.Create);
+        group2.MapGet(string.Empty, GetProductsV2).RequireAuthorization(ProductPermissions.View);
+        group2.MapGet("{productId}", GetProductsByIdV2).RequireAuthorization(ProductPermissions.View);
+        group2.MapDelete("{productId}", DeleteProductsV2).RequireAuthorization(ProductPermissions.Delete);
+        group2.MapPut("{productId}", UpdateProductsV2).RequireAuthorization(ProductPermissions.Update);
     }
 
     #region ====== version 1 ======

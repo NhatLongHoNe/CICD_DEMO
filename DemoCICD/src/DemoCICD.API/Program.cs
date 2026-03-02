@@ -61,6 +61,7 @@ builder.Services.AddInfrastructureDapper();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddPermissionAuthorization();
 
 builder.Services.AddHostedService<IdentityDataSeeder>();
 
@@ -83,18 +84,15 @@ var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors();
 app.UseAuthentication();
-// Add API Endpoint
-app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();
-//app.NewVersionedApi("auth").MapAuthApi();
-
-// Add API Endpoint with carter module
-app.MapCarter();
-
-//app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
+// Add API Endpoint
+app.NewVersionedApi("products-minimal-show-on-swagger").MapProductApiV1().MapProductApiV2();
+// Auth API registered via Carter (ICarterModule)
+app.MapCarter();
 app.MapControllers();
+
+//app.UseHttpsRedirection();
 
 if (builder.Environment.IsDevelopment() || builder.Environment.IsStaging())
     app.ConfigureSwagger();
