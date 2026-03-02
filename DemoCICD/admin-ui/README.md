@@ -101,6 +101,8 @@ $ npm install
 $ npm update
 ```
 
+**Windows (PowerShell):** Chạy trong thư mục `admin-ui`. Nếu dùng một dòng, dùng `;` thay cho `&&` (vd: `cd admin-ui; npm i`). Hoặc từ thư mục gốc repo chạy `.\install-admin-ui.ps1`.
+
 ### Basic usage
 
 ``` bash

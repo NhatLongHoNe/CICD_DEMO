@@ -7,4 +7,9 @@ Password123!
 
 npm install -g @angular/cli@17.0.8
 
+# Admin-UI: cai dat dependencies (trong PowerShell dung ; thay cho &&)
+# Cach 1 - Tu thu muc DemoCICD:  .\install-admin-ui.ps1
+# Cach 2 - Thu cong:  cd admin-ui  roi chay  npm i
+# Cach 3 - Mot dong PowerShell:  Set-Location admin-ui; npm i
+
 gentelela
