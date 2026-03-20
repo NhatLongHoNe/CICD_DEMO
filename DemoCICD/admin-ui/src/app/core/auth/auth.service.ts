@@ -139,6 +139,35 @@ export class AuthService {
   }
 
   /**
+   * Lấy danh sách permission từ JWT (claim type "permission").
+   * Dùng cho permission guard và ẩn/hiện menu, nút theo quyền.
+   */
+  getPermissions(): string[] {
+    const token = this.accessToken;
+    if (!token) return [];
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return [];
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      const claims = decoded as Record<string, unknown>;
+      // Backend gửi permission claims với type "permission"
+      const perm = claims['permission'];
+      if (Array.isArray(perm)) return perm as string[];
+      if (typeof perm === 'string') return [perm];
+      // Hoặc có thể nằm trong một mảng theo key khác
+      const arr = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/permission'];
+      if (Array.isArray(arr)) return arr as string[];
+      return [];
+    } catch {
+      return [];
+    }
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.getPermissions().some(p => p === permission);
+  }
+
+  /**
    * Kiểm tra access token sắp hết hạn (còn ít hơn N giây).
    * Dùng cho interceptor hoặc proactive refresh.
    */

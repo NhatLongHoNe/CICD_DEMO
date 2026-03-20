@@ -22,20 +22,20 @@ public class ProductCarterApi : ApiEndpoint, ICarterModule
         var group1 = app.NewVersionedApi("products-cater-name-show-on-swagger")
             .MapGroup(BaseUrl).HasApiVersion(1).RequireAuthorization();
 
-        group1.MapPost(string.Empty, CreateProductsV1).RequireAuthorization(ProductPermissions.Create);
-        group1.MapGet(string.Empty, GetProductsV1).RequireAuthorization(ProductPermissions.View);
-        group1.MapGet("{productId}", GetProductsByIdV1).RequireAuthorization(ProductPermissions.View);
-        group1.MapDelete("{productId}", DeleteProductsV1).RequireAuthorization(ProductPermissions.Delete);
-        group1.MapPut("{productId}", UpdateProductsV1).RequireAuthorization(ProductPermissions.Update);
+        group1.MapPost(string.Empty, CreateProductsV1).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Create));
+        group1.MapGet(string.Empty, GetProductsV1).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group1.MapGet("{productId}", GetProductsByIdV1).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group1.MapDelete("{productId}", DeleteProductsV1).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Delete));
+        group1.MapPut("{productId}", UpdateProductsV1).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Update));
 
         var group2 = app.NewVersionedApi("products-cater-name-show-on-swagger")
             .MapGroup(BaseUrl).HasApiVersion(2).RequireAuthorization();
 
-        group2.MapPost(string.Empty, CreateProductsV2).RequireAuthorization(ProductPermissions.Create);
-        group2.MapGet(string.Empty, GetProductsV2).RequireAuthorization(ProductPermissions.View);
-        group2.MapGet("{productId}", GetProductsByIdV2).RequireAuthorization(ProductPermissions.View);
-        group2.MapDelete("{productId}", DeleteProductsV2).RequireAuthorization(ProductPermissions.Delete);
-        group2.MapPut("{productId}", UpdateProductsV2).RequireAuthorization(ProductPermissions.Update);
+        group2.MapPost(string.Empty, CreateProductsV2).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Create));
+        group2.MapGet(string.Empty, GetProductsV2).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group2.MapGet("{productId}", GetProductsByIdV2).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group2.MapDelete("{productId}", DeleteProductsV2).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Delete));
+        group2.MapPut("{productId}", UpdateProductsV2).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Update));
     }
 
     #region ====== version 1 ======

@@ -33,12 +33,14 @@ builder
     .AddControllers()
     .AddApplicationPart(DemoCICD.Presentation.AssemblyReference.Assembly);
 
+builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 // Configure Options and SQL
 builder.Services.ConfigureSqlServerRetryOptions(builder.Configuration.GetSection(nameof(SqlServerRetryOptions)));
 builder.Services.AddSqlConfiguration();
 builder.Services.AddRepositoryBaseConfiguration();
+builder.Services.AddRedisAndCachedPermissions(builder.Configuration);
 builder.Services.AddConfigureAutoMapper();
 
 builder.Services.AddCarter();
@@ -82,6 +84,7 @@ builder.Services
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<LoginRateLimitMiddleware>();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -16,7 +16,6 @@ public sealed class ApplicationDbContext : IdentityDbContext<AppUser, AppRole, G
     protected override void OnModelCreating(ModelBuilder builder) =>
         builder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);
 
-    public DbSet<AppUser> AppUses { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Action> Actions { get; set; }
     public DbSet<Function> Functions { get; set; }

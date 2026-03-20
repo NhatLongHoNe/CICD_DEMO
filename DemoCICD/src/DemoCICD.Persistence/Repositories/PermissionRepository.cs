@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DemoCICD.Persistence.Repositories;
 
-internal sealed class PermissionRepository : IPermissionRepository
+public sealed class PermissionRepository : IPermissionRepository
 {
     private readonly ApplicationDbContext _context;
 

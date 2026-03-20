@@ -1,6 +1,7 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ButtonDirective,
@@ -38,44 +39,38 @@ import { AuthService } from '../../../core/auth';
   ]
 })
 export class LoginComponent {
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toastr = inject(ToastrService);
+
   loginForm = this.fb.group({
     username: [''],
     password: ['']
   });
   loading = false;
-  errorMessage: string | null = null;
-
-  constructor(
-    private readonly fb: NonNullableFormBuilder,
-    private readonly auth: AuthService,
-    private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
 
   onSubmit(): void {
-    this.errorMessage = null;
     const { username, password } = this.loginForm.getRawValue();
     if (!username.trim() || !password) {
-      this.errorMessage = 'Vui lòng nhập username và password.';
+      this.toastr.error('Vui lòng nhập username và password.');
       return;
     }
     this.loading = true;
     this.loginForm.disable();
-    this.cdr.markForCheck();
     this.auth.login({ username: username.trim(), password }).subscribe({
       next: () => {
         this.loading = false;
         this.loginForm.enable();
+        this.toastr.success('Đăng nhập thành công.');
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
+      error: (err: { error?: { detail?: string; title?: string; message?: string }; message?: string }) => {
         this.loading = false;
         this.loginForm.enable();
-        // API trả 400 với body: { type, title, status, detail, errors }
         const body = err?.error;
-        this.errorMessage =
-          body?.detail ?? body?.title ?? body?.message ?? err?.message ?? 'Đăng nhập thất bại.';
-        this.cdr.markForCheck();
+        const msg = body?.detail ?? body?.title ?? body?.message ?? err?.message ?? 'Đăng nhập thất bại.';
+        this.toastr.error(msg);
       }
     });
   }

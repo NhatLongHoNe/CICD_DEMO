@@ -18,11 +18,11 @@ public static class ProductApi
     {
         var group = builder.MapGroup(BaseUrl).HasApiVersion(1).RequireAuthorization();
 
-        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(ProductPermissions.Create);
-        group.MapGet(string.Empty, GetProducts).RequireAuthorization(ProductPermissions.View);
-        group.MapGet("{productId}", GetProductsById).RequireAuthorization(ProductPermissions.View);
-        group.MapDelete("{productId}", DeleteProducts).RequireAuthorization(ProductPermissions.Delete);
-        group.MapPut("{productId}", UpdateProducts).RequireAuthorization(ProductPermissions.Update);
+        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Create));
+        group.MapGet(string.Empty, GetProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group.MapGet("{productId}", GetProductsById).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
+        group.MapDelete("{productId}", DeleteProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Delete));
+        group.MapPut("{productId}", UpdateProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Update));
 
         return builder;
     }
@@ -31,8 +31,8 @@ public static class ProductApi
     {
         var group = builder.MapGroup(BaseUrl).HasApiVersion(2).RequireAuthorization();
 
-        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(ProductPermissions.Create);
-        group.MapGet(string.Empty, GetProducts).RequireAuthorization(ProductPermissions.View);
+        group.MapPost(string.Empty, CreateProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.Create));
+        group.MapGet(string.Empty, GetProducts).RequireAuthorization(PermissionPolicy.Name(ProductPermissions.View));
 
         return builder;
     }

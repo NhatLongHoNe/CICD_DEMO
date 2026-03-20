@@ -10,7 +10,7 @@ namespace DemoCICD.Infrastructure.Authorization;
 public sealed class RequirePermissionAttribute : AuthorizeAttribute
 {
     public RequirePermissionAttribute(string permission)
-        : base(policy: permission)
+        : base(policy: PermissionPolicy.Name(permission))
     {
         Permission = permission;
     }

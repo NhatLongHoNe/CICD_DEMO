@@ -8,9 +8,6 @@
               <form cForm [formGroup]="loginForm" (ngSubmit)="onSubmit()" [attr.aria-busy]="loading">
                 <h1>Login</h1>
                 <p class="text-body-secondary">Sign In to your account</p>
-                @if (errorMessage) {
-                  <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
-                }
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using AutoMapper;
 using DemoCICD.Contract.Abstractions.Shared;
 using DemoCICD.Contract.Enumerations;
@@ -11,6 +11,9 @@ namespace DemoCICD.Application.UserCases.V1.Queries.Product;
 
 public sealed class GetProductsQueryHandler : IQueryHandler<Query.GetProductsQuery, PagedResult<Response.ProductResponse>>
 {
+    private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
+        { "id", "name", "price", "description" };
+
     private readonly IRepositoryBase<Domain.Entities.Product, Guid> _productRepository;
     private readonly IMapper _mapper;
     private readonly ApplicationDbContext _context;
@@ -26,71 +29,60 @@ public sealed class GetProductsQueryHandler : IQueryHandler<Query.GetProductsQue
 
     public async Task<Result<PagedResult<Response.ProductResponse>>> Handle(Query.GetProductsQuery request, CancellationToken cancellationToken)
     {
-        if (request.SortColumnAndOrder.Any()) // =>>  Raw Query when order by multi column
-        {
-            var PageIndex = request.PageIndex <= 0 ? PagedResult<Domain.Entities.Product>.DefaultPageIndex : request.PageIndex;
-            var PageSize = request.PageSize <= 0
-                ? PagedResult<Domain.Entities.Product>.DefaultPageSize
-                : request.PageSize > PagedResult<Domain.Entities.Product>.UpperPageSize
-                ? PagedResult<Domain.Entities.Product>.UpperPageSize : request.PageSize;
-
-            // ============================================
-            var productsQuery = string.IsNullOrWhiteSpace(request.SearchTerm)
-                ? @$"SELECT * FROM {nameof(Domain.Entities.Product)} ORDER BY "
-                : @$"SELECT * FROM {nameof(Domain.Entities.Product)}
-                        WHERE {nameof(Domain.Entities.Product.Name)} LIKE '%{request.SearchTerm}%'
-                        OR {nameof(Domain.Entities.Product.Description)} LIKE '%{request.SearchTerm}%'
-                        ORDER BY ";
-
-            foreach (var item in request.SortColumnAndOrder)
-                productsQuery += item.Value == SortOrder.Descending
-                    ? $"{item.Key} DESC, "
-                    : $"{item.Key} ASC, ";
-
-            productsQuery = productsQuery.Remove(productsQuery.Length - 2);
-
-            productsQuery += $" OFFSET {(PageIndex - 1) * PageSize} ROWS FETCH NEXT {PageSize} ROWS ONLY";
-
-            var products = await _context.Products.FromSqlRaw(productsQuery)
-                .ToListAsync(cancellationToken: cancellationToken);
-
-            var totalCount = await _context.Products.CountAsync(cancellationToken);
-
-            var productPagedResult = PagedResult<Domain.Entities.Product>.Create(products,
-                PageIndex,
-                PageSize,
-                totalCount);
-
-            var result = _mapper.Map<PagedResult<Response.ProductResponse>>(productPagedResult);
-
-            return Result.Success(result);
-        }
-        else // =>> Entity Framework
-        {
-            var productsQuery = string.IsNullOrWhiteSpace(request.SearchTerm)
+        // Dùng EF cho mọi trường hợp để tránh SQL injection và đảm bảo totalCount đúng bộ lọc
+        var productsQuery = string.IsNullOrWhiteSpace(request.SearchTerm)
             ? _productRepository.FindAll()
             : _productRepository.FindAll(x => x.Name.Contains(request.SearchTerm) || x.Description.Contains(request.SearchTerm));
 
-            productsQuery = request.SortOrder == SortOrder.Descending
-            ? productsQuery.OrderByDescending(GetSortProperty(request))
-            : productsQuery.OrderBy(GetSortProperty(request));
-
-            var products = await PagedResult<Domain.Entities.Product>.CreateAsync(productsQuery,
-                request.PageIndex,
-                request.PageSize);
-
-            var result = _mapper.Map<PagedResult<Response.ProductResponse>>(products);
-            return Result.Success(result);
+        if (request.SortColumnAndOrder is { } sortDict && sortDict.Count > 0)
+        {
+            var first = true;
+            foreach (var (column, order) in sortDict)
+            {
+                var col = column?.Trim();
+                if (string.IsNullOrEmpty(col) || !AllowedSortColumns.Contains(col))
+                    continue;
+                var expr = GetSortPropertyByColumn(col);
+                if (first)
+                {
+                    productsQuery = order == SortOrder.Descending
+                        ? productsQuery.OrderByDescending(expr)
+                        : productsQuery.OrderBy(expr);
+                    first = false;
+                }
+                else
+                {
+                    var ordered = (IOrderedQueryable<Domain.Entities.Product>)productsQuery;
+                    productsQuery = order == SortOrder.Descending
+                        ? ordered.ThenByDescending(expr)
+                        : ordered.ThenBy(expr);
+                }
+            }
+            if (first)
+                productsQuery = productsQuery.OrderBy(p => p.Id);
         }
+        else
+        {
+            productsQuery = request.SortOrder == SortOrder.Descending
+                ? productsQuery.OrderByDescending(GetSortProperty(request.SortColumn))
+                : productsQuery.OrderBy(GetSortProperty(request.SortColumn));
+        }
+
+        var products = await PagedResult<Domain.Entities.Product>.CreateAsync(productsQuery, request.PageIndex, request.PageSize);
+
+        var result = _mapper.Map<PagedResult<Response.ProductResponse>>(products);
+        return Result.Success(result);
     }
 
-    private static Expression<Func<Domain.Entities.Product, object>> GetSortProperty(Query.GetProductsQuery request)
-         => request.SortColumn?.ToLower() switch
-         {
-             "name" => product => product.Name,
-             "price" => product => product.Price,
-             "description" => product => product.Description,
-             _ => product => product.Id
-             //_ => product => product.CreatedDate // Default Sort Descending on CreatedDate column
-         };
+    private static Expression<Func<Domain.Entities.Product, object>> GetSortProperty(string? sortColumn)
+        => GetSortPropertyByColumn(sortColumn ?? "id");
+
+    private static Expression<Func<Domain.Entities.Product, object>> GetSortPropertyByColumn(string column)
+        => (column?.ToLowerInvariant()) switch
+        {
+            "name" => product => product.Name,
+            "price" => product => product.Price,
+            "description" => product => product.Description,
+            _ => product => product.Id
+        };
 }

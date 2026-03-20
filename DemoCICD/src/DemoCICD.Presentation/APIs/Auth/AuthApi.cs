@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Asp.Versioning.Builder;
 using Carter;
 using DemoCICD.Contract.Abstractions.Shared;
 using DemoCICD.Contract.Services.V1.Auth;
+using DemoCICD.Infrastructure.Authorization;
 using DemoCICD.Presentation.Abstractions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +24,7 @@ public class AuthApi : ApiEndpoint, ICarterModule
         group.MapPost("login", Login).WithName("Login");
         group.MapPost("refresh-token", RefreshToken).WithName("RefreshToken");
         group.MapPost("logout", Logout).WithName("Logout");
-
+        group.MapGet("me", Me).RequireAuthorization().WithName("Me");
     }
 
     public static async Task<IResult> Login(ISender sender, [FromBody] Command.LoginCommand command)
@@ -53,5 +55,18 @@ public class AuthApi : ApiEndpoint, ICarterModule
             return HandlerFailure(result);
 
         return Results.Ok(result);
+    }
+
+    public static IResult Me(HttpContext httpContext)
+    {
+        var user = httpContext.User;
+        if (user?.Identity?.IsAuthenticated != true)
+            return Results.Unauthorized();
+
+        var userName = user.FindFirstValue(ClaimTypes.Name) ?? user.FindFirstValue("unique_name");
+        var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var permissions = user.FindAll(PermissionClaimTypes.Permission).Select(c => c.Value).ToList();
+
+        return Results.Ok(new { userName, roles, permissions });
     }
 }

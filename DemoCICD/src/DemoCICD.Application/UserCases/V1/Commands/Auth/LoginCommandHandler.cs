@@ -6,6 +6,7 @@ using DemoCICD.Domain.Abstractions.Repositories;
 using DemoCICD.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace DemoCICD.Application.UserCases.V1.Commands.Auth;
 
@@ -36,18 +37,29 @@ public sealed class LoginCommandHandler : ICommandHandler<Command.LoginCommand, 
         var user = await _userManager.FindByNameAsync(request.UserName);
         if (user is null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
+            if (user != null)
+                await _userManager.AccessFailedAsync(user);
             return Result.Failure<Response.TokenResponse>(
                 new Error("Auth.InvalidCredentials", "Invalid username or password."));
         }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        var roleIds = new List<Guid>();
-        foreach (var roleName in roles)
+        if (await _userManager.IsLockedOutAsync(user))
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
-            if (role != null)
-                roleIds.Add(role.Id);
+            var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+            return Result.Failure<Response.TokenResponse>(new Error("Auth.LockedOut",
+                $"Account locked until {lockoutEnd:O}. Try again later."));
         }
+
+        await _userManager.ResetAccessFailedCountAsync(user);
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var roleNames = roles.ToList();
+        var roleIds = roleNames.Count == 0
+            ? new List<Guid>()
+            : (await _roleManager.Roles
+                .Where(r => roleNames.Contains(r.Name!))
+                .Select(r => r.Id)
+                .ToListAsync(cancellationToken));
 
         var permissions = await _permissionRepository.GetPermissionsByRoleIdsAsync(roleIds, cancellationToken);
         var accessToken = _accessTokenService.GenerateAccessToken(user.Id, user.UserName!, roles.ToList(), permissions);

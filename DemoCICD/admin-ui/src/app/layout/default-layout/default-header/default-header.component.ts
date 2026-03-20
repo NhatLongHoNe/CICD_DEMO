@@ -24,6 +24,8 @@ import {
 
 import { IconDirective } from '@coreui/icons-angular';
 
+import { AuthService } from '../../../core/auth';
+
 @Component({
   selector: 'app-default-header',
   templateUrl: './default-header.component.html',
@@ -32,7 +34,12 @@ import { IconDirective } from '@coreui/icons-angular';
 export class DefaultHeaderComponent extends HeaderComponent {
 
   readonly #colorModeService = inject(ColorModeService);
+  readonly #auth = inject(AuthService);
   readonly colorMode = this.#colorModeService.colorMode;
+
+  logout(): void {
+    this.#auth.logout();
+  }
 
   readonly colorModes = [
     { name: 'light', text: 'Light', icon: 'cilSun' },

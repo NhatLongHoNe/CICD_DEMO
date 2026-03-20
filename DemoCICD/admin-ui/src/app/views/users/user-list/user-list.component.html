@@ -1,0 +1,80 @@
+<c-card>
+  <c-card-header>
+    <strong>{{ 'Users' }}</strong>
+    @if (canCreate()) {
+      <a cButton color="primary" class="float-end" routerLink="/users/new" size="sm">
+        <svg cIcon name="cilPlus"></svg> New User
+      </a>
+    }
+  </c-card-header>
+  <c-card-body>
+    <c-row class="mb-3">
+      <c-col md="6">
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search by username, email, full name..."
+            [(ngModel)]="searchTerm"
+            (keyup.enter)="search()"
+          />
+          <button cButton color="primary" type="button" (click)="search()">Search</button>
+        </div>
+      </c-col>
+    </c-row>
+    @if (loading()) {
+      <p>Loading...</p>
+    } @else {
+      <table cTable [hover]="true" [striped]="true" class="mb-0">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Roles</th>
+            <th>Lockout</th>
+            @if (canUpdate() || canDelete()) {
+              <th class="text-end">Actions</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr>
+              <td>{{ user.userName }}</td>
+              <td>{{ user.email ?? '-' }}</td>
+              <td>{{ user.fullName ?? '-' }}</td>
+              <td>
+                @for (r of user.roles; track r) {
+                  <span class="badge bg-secondary me-1">{{ r }}</span>
+                }
+                @if (user.roles.length === 0) { - }
+              </td>
+              <td>{{ user.lockoutEnd ? 'Locked' : '-' }}</td>
+              @if (canUpdate() || canDelete()) {
+                <td class="text-end">
+                  @if (canUpdate()) {
+                    <a [routerLink]="['/users', user.id, 'edit']" cButton color="primary" size="sm" class="me-1">Edit</a>
+                  }
+                  @if (canDelete()) {
+                    <button cButton color="danger" size="sm" (click)="deleteUser(user)">Delete</button>
+                  }
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr><td colspan="6">No users.</td></tr>
+          }
+        </tbody>
+      </table>
+      <div class="d-flex justify-content-between mt-3">
+        <span class="text-body-secondary">Total: {{ totalCount() }}</span>
+        <div>
+          <button cButton color="secondary" size="sm" (click)="pagePrev()" [disabled]="pageIndex <= 1">Prev</button>
+          <span class="mx-2">Page {{ pageIndex }}</span>
+          <button cButton color="secondary" size="sm" (click)="pageNext()">Next</button>
+        </div>
+      </div>
+    }
+  </c-card-body>
+</c-card>
